@@ -1,0 +1,24 @@
+aws_region  = "eu-west-1"
+environment = "prod"
+
+# Specify bucket_name or leave null to use bucket_prefix
+bucket_name   = null
+bucket_prefix = "app-backups-archive-"
+
+# The IAM role granted upload permissions directly via the S3 Bucket Policy
+uploader_role_arn = "arn:aws:iam::123456789012:role/backup_uploader"
+
+retention_days          = 180            # Strict policy: 180 days and no more
+transition_glacier_days = 30             # Default: 30 days in S3 Standard before moving straight into Glacier
+glacier_storage_class   = "DEEP_ARCHIVE" # Cheapest Glacier tier
+transition_ia_days      = null           # Set to number (e.g. 60) if intermediate IA tier is desired
+
+enable_versioning     = true
+enable_kms_encryption = true
+
+tags = {
+  Project     = "Filesystem Backup Storage"
+  ManagedBy   = "Terraform"
+  Compliance  = "180-day-retention"
+  Environment = "prod"
+}

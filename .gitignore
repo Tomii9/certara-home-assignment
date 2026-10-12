@@ -1,0 +1,52 @@
+# Local .terraform directories and downloaded provider plugins
+**/.terraform/
+.terraform/
+
+# Terraform state and plan files
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfplan
+
+# Sensitive variables (keep *.example files)
+*.tfvars
+*.tfvars.json
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration files
+.terraformrc
+terraform.rc
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+crash.log
+crash.*.log
+
+# LocalStack and temporary test artifacts
+.localstack/
+*.local/
+
+# Minikube and local cluster artifacts
+.minikube/
+*.kubeconfig
+
+# Downloaded archives
+*.zip
+*.tar.gz
+
+# OS and Editor generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo

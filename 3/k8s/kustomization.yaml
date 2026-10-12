@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: hello-rest
+
+labels:
+  - pairs:
+      app.kubernetes.io/name: hello-rest
+      app.kubernetes.io/part-of: hello-rest
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: true
+
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+
+# The image is pushed to the minikube "registry" addon, which the
+# registry-proxy DaemonSet exposes on every node as localhost:5000.
+images:
+  - name: hello-rest
+    newName: localhost:5000/hello-rest
+    newTag: "1.0"
