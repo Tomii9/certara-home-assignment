@@ -94,6 +94,27 @@ function Assert-Cluster {
     if (-not (Test-ClusterRunning)) { Die "Minikube profile '$Profile_' is not running. Run: .\scripts\dev.ps1 up" }
 }
 
+function Install-Minikube {
+    Step 'Installing minikube CLI (user-level standalone binary)'
+    $arch = if ($env:PROCESSOR_ARCHITECTURE -match 'ARM64') { 'arm64' } else { 'amd64' }
+    $url = "https://github.com/kubernetes/minikube/releases/latest/download/minikube-windows-$arch.exe"
+    $installDir = Join-Path $env:LOCALAPPDATA 'Programs\minikube'
+    if (-not (Test-Path $installDir)) {
+        New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+    }
+    $targetExe = Join-Path $installDir 'minikube.exe'
+    Write-Host "  Downloading $url..."
+    Invoke-WebRequest -Uri $url -OutFile $targetExe -UseBasicParsing
+    if ($env:Path -notlike "*$installDir*") {
+        $env:Path = "$installDir;$env:Path"
+    }
+    $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+    if ($userPath -notlike "*$installDir*") {
+        [Environment]::SetEnvironmentVariable('Path', "$userPath;$installDir", 'User')
+    }
+    Ok "minikube installed to $targetExe"
+}
+
 function Invoke-Check {
     Step 'Checking required tooling'
     $ErrorActionPreference = 'Continue'   # PS 5.1: redirected stderr must not throw
@@ -108,6 +129,15 @@ function Invoke-Check {
         }
     } else {
         Fail 'docker not found   -> https://docs.docker.com/get-docker/'; $errors++
+    }
+
+    if (-not (Have minikube)) {
+        try {
+            Install-Minikube
+        } catch {
+            Fail "Failed to auto-download minikube: $_`nInstall manually: winget install Kubernetes.minikube (https://minikube.sigs.k8s.io/docs/start/)"
+            $errors++
+        }
     }
 
     if (Have minikube) {

@@ -37,11 +37,11 @@ When you're done: `Ctrl+C`, then `dev down` (pause, keeps everything) or `dev de
 | Tool | Why | Install |
 |------|-----|---------|
 | **Docker** (Desktop or Engine) | minikube driver + `docker` CLI for building | <https://docs.docker.com/get-docker/> |
-| **minikube** ≥ 1.30 | local Kubernetes cluster | <https://minikube.sigs.k8s.io/docs/start/> · `winget install Kubernetes.minikube` · `brew install minikube` |
+| **minikube** ≥ 1.30 | local Kubernetes cluster | Auto-downloaded if missing (<https://minikube.sigs.k8s.io/docs/start/>) |
 | kubectl *(optional)* | talk to the cluster; if missing, `minikube kubectl --` is used | <https://kubernetes.io/docs/tasks/tools/> |
 | curl *(bash only)* | smoke test | usually preinstalled |
 
-Run `dev check` at any time; it reports what is missing and how to install it.
+Run `dev check` at any time; it verifies your environment (and auto-downloads `minikube` if not found).
 
 > [!NOTE]
 > On Windows, PowerShell's default execution policy blocks `.ps1` files. That's why [`scripts/dev.cmd`](scripts/dev.cmd) exists: it runs `dev.ps1` with `-ExecutionPolicy Bypass` for that one process only.

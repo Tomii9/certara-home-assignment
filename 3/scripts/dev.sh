@@ -71,6 +71,46 @@ require_cluster() {
   cluster_running || die "Minikube profile '${MINIKUBE_PROFILE}' is not running. Run: $0 up"
 }
 
+install_minikube() {
+  step "Installing minikube CLI (user-level standalone binary)"
+  local os arch url install_dir target_bin
+  case "$(uname -s)" in
+    Linux*)  os="linux" ;;
+    Darwin*) os="darwin" ;;
+    CYGWIN*|MINGW*|MSYS*) os="windows" ;;
+    *) fail "Unsupported operating system $(uname -s)"; return 1 ;;
+  esac
+
+  case "$(uname -m)" in
+    x86_64) arch="amd64" ;;
+    aarch64|arm64) arch="arm64" ;;
+    *) fail "Unsupported architecture $(uname -m)"; return 1 ;;
+  esac
+
+  if [[ "${os}" == "windows" ]]; then
+    install_dir="${LOCALAPPDATA:-${USERPROFILE}/AppData/Local}/Programs/minikube"
+    target_bin="${install_dir}/minikube.exe"
+    url="https://github.com/kubernetes/minikube/releases/latest/download/minikube-windows-${arch}.exe"
+  else
+    install_dir="${HOME}/.minikube/bin"
+    target_bin="${install_dir}/minikube"
+    url="https://github.com/kubernetes/minikube/releases/latest/download/minikube-${os}-${arch}"
+  fi
+
+  mkdir -p "${install_dir}"
+  echo "  Downloading ${url}..."
+  if curl -fsSL -o "${target_bin}" "${url}"; then
+    chmod +x "${target_bin}" 2>/dev/null || true
+    if [[ ":${PATH}:" != *":${install_dir}:"* ]]; then
+      PATH="${install_dir}:${PATH}"
+    fi
+    ok "minikube installed to ${target_bin}"
+  else
+    fail "Failed to download minikube -> https://minikube.sigs.k8s.io/docs/start/"
+    return 1
+  fi
+}
+
 cmd_check() {
   step "Checking required tooling"
   local errors=0
@@ -88,6 +128,10 @@ cmd_check() {
   else
     fail "docker not found  -> https://docs.docker.com/get-docker/"
     errors=$((errors + 1))
+  fi
+
+  if ! have minikube; then
+    install_minikube || errors=$((errors + 1))
   fi
 
   if have minikube; then
